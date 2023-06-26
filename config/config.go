@@ -74,7 +74,7 @@ func NewConfig() (*Config, error) {
 	viper.SetDefault("redis.max-idle", 3)
 	viper.SetDefault("redis.timeout", "60s")
 	viper.SetDefault("redis.host", "localhost:6379")
-	viper.SetDefault("redis.password", "P@ssw0rd")
+	viper.SetDefault("redis.password", "")
 
 	viper.SetDefault("client.timeout", "60s")
 	viper.SetDefault("client.hidebody", true)
