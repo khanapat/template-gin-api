@@ -19,6 +19,7 @@ type Config struct {
 		Cors    struct {
 			Origin string `mapstructure:"origin"`
 		} `mapstructure:"cors"`
+		GinMode string `mapstructure:"gin-mode"`
 	} `mapstructure:"app"`
 	Log struct {
 		Level string `mapstructure:"level"`
@@ -57,6 +58,7 @@ func NewConfig() (*Config, error) {
 	viper.SetDefault("app.timeout", "60s")
 	viper.SetDefault("app.context", "/api")
 	viper.SetDefault("app.cors.origin", "*")
+	viper.SetDefault("app.gin-mode", "debug") // release, test
 
 	viper.SetDefault("log.level", "debug")
 	viper.SetDefault("log.env", "dev")

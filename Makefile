@@ -12,8 +12,23 @@ clean:
 test: clean
 	go test -v -cover ./...
 
-build-container:
-	docker build . --no-cache -t $(PROJECT):$(VERSION) -f ./build/Dockerfile
+image:
+	docker build . --no-cache -t $(PROJECT):$(VERSION) -f ./build/app/Dockerfile
 
-run-container:
-	docker run --env-file .env -d $(PROJECT):$(VERSION)
+docker:
+	docker run -it --name $(PROJECT) -p $(PORT):$(PORT) --rm --env-file .env -d $(PROJECT):$(VERSION)
+
+create-postgres:
+	docker-compose -f ./build/postgres/docker-compose.yaml up -d
+
+delete-postgres:
+	docker-compose -f ./build/postgres/docker-compose.yaml down
+
+create-redis:
+	docker-compose -f ./build/redis/docker-compose.yaml up -d
+
+delete-redis:
+	docker-compose -f ./build/redis/docker-compose.yaml down
+
+pre-commit:
+	pre-commit install

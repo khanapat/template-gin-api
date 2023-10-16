@@ -10,8 +10,11 @@ import (
 	"runtime"
 	"syscall"
 	"template-gin-api/config"
+	"template-gin-api/internal/api/account"
 	"template-gin-api/internal/database"
+	"template-gin-api/internal/handler"
 	"template-gin-api/internal/logz"
+	"template-gin-api/internal/middleware"
 	"time"
 
 	_ "time/tzdata"
@@ -61,11 +64,28 @@ func main() {
 		logger.Error(err.Error())
 	}
 
-	router := gin.Default()
+	middle := middleware.NewMiddleware(cfg, logger)
+
+	gin.SetMode(cfg.App.GinMode)
+	router := gin.New()
+
+	accountRepo := account.NewAccountRepo(postgresDB)
+
+	api := router.Group(cfg.App.Context)
+	api.Use(middle.JSONMiddleware())
+	api.Use(middle.LoggingMiddleware())
+
+	api.POST("/accounts", handler.New(account.NewRegisterAccount(accountRepo).Handler, logger))
+	api.GET("/accounts", handler.New(account.NewInquiryAccount(accountRepo).Handler, logger))
+	api.GET("/accounts/:id", handler.New(account.NewInquiryAccountById(accountRepo).Handler, logger))
+	api.PATCH("/accounts", handler.New(account.NewUpdateAccount(accountRepo).Handler, logger))
 
 	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%s", cfg.App.Port),
-		Handler: router,
+		Addr:         fmt.Sprintf(":%s", cfg.App.Port),
+		Handler:      router,
+		ReadTimeout:  cfg.App.Timeout,
+		WriteTimeout: cfg.App.Timeout,
+		IdleTimeout:  cfg.App.Timeout,
 	}
 
 	go func() {
@@ -84,7 +104,7 @@ func main() {
 		logger.Error(err.Error())
 	}
 
-	logger.Info("Server exiting")
+	logger.Info("Server exit")
 	os.Exit(0)
 }
 

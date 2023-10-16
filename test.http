@@ -1,0 +1,26 @@
+GET http://localhost:9090/api/accounts?id=834cddf0-29d6-432c-aebd-0f274a952a38&role_id=1
+###
+
+GET http://localhost:9090/api/accounts/834cddf0-29d6-432c-aebd-0f274a952a38
+###
+
+POST http://localhost:9090/api/accounts
+Content-Type: application/json
+
+{
+    "firstName": "Thidarat",
+    "lastName": "Ruanghiran",
+    "email": "thidarat.r@arise.tech",
+    "balance": 7.54,
+    "roleId": 2
+}
+###
+
+PATCH http://localhost:9090/api/accounts
+Content-Type: application/json
+
+{
+    "id": "834cddf0-29d6-432c-aebd-0f274a952a38",
+    "balance": 9545.45,
+    "roleId": 2
+}
