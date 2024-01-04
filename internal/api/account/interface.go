@@ -17,3 +17,15 @@ type getAccountRepo interface {
 type getAccountByIdRepo interface {
 	InquiryAccountById(ctx context.Context, id string) (*Account, error)
 }
+
+type registerAccountPrepareRepo interface {
+	CreateAccountWithPrepareState(ctx context.Context, accounts []CreateAccount) error
+}
+
+type registerAccountBulkRepo interface {
+	CreateAccountWithBulk(ctx context.Context, accounts []CreateAccount) error
+}
+
+type registerAccountCopyFromRepo interface {
+	CreateAccountWithCopyFrom(ctx context.Context, accounts []CreateAccount) error
+}

@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"template-gin-api/config"
 	"template-gin-api/internal/api/account"
+	"template-gin-api/internal/api/role"
 	"template-gin-api/internal/database"
 	"template-gin-api/internal/handler"
 	"template-gin-api/internal/logz"
@@ -70,6 +71,7 @@ func main() {
 	router := gin.New()
 
 	accountRepo := account.NewAccountRepo(postgresDB)
+	roleRepo := role.NewRoleRepo(postgresDB)
 
 	api := router.Group(cfg.App.Context)
 	api.Use(middle.JSONMiddleware())
@@ -79,6 +81,12 @@ func main() {
 	api.GET("/accounts", handler.New(account.NewInquiryAccount(accountRepo).Handler, logger))
 	api.GET("/accounts/:id", handler.New(account.NewInquiryAccountById(accountRepo).Handler, logger))
 	api.PATCH("/accounts", handler.New(account.NewUpdateAccount(accountRepo).Handler, logger))
+
+	api.POST("/accountps", handler.New(account.NewRegisterAccountPrepare(accountRepo).Handler, logger))
+	api.POST("/accountb", handler.New(account.NewRegisterAccountBulk(accountRepo).Handler, logger))
+	api.POST("/accountcpf", handler.New(account.NewRegisterAccountCopyFrom(accountRepo).Handler, logger))
+
+	api.POST("/roles", handler.New(role.NewRegisterRole(roleRepo).Handler, logger))
 
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%s", cfg.App.Port),

@@ -149,6 +149,132 @@ func (r *accountRepo) CreateAccount(ctx context.Context, id string, firstName st
 	return nil
 }
 
+// https://pkg.go.dev/github.com/jackc/pgx/v5#hdr-Prepared_Statements
+func (r *accountRepo) CreateAccountWithPrepareState(ctx context.Context, accounts []CreateAccount) error {
+	tx, err := r.db.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.Serializable})
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = tx.Rollback(ctx)
+	}()
+
+	if _, err := tx.Prepare(ctx, "create-account", `
+		INSERT INTO public.accounts
+		(
+			id,
+			first_name,
+			last_name,
+			email,
+			balance,
+			role_id
+		)
+		VALUES
+		(
+			$1,
+			$2,
+			$3,
+			$4,
+			$5,
+			$6
+		)
+	;`); err != nil {
+		return err
+	}
+	for _, value := range accounts {
+		if _, err := tx.Exec(ctx, "create-account", value.Id, value.FirstName, value.LastName, value.Email, value.Balance, value.RoleId); err != nil {
+			return err
+		}
+	}
+	if err := tx.Commit(ctx); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// https://donchev.is/post/working-with-postgresql-in-go-using-pgx/
+func (r *accountRepo) CreateAccountWithBulk(ctx context.Context, accounts []CreateAccount) error {
+	tx, err := r.db.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.Serializable})
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = tx.Rollback(ctx)
+	}()
+
+	batch := &pgx.Batch{}
+	for _, account := range accounts {
+		batch.Queue(`
+			INSERT INTO public.accounts
+			(
+				id,
+				first_name,
+				last_name,
+				email,
+				balance,
+				role_id
+			)
+			VALUES
+			(
+				$1,
+				$2,
+				$3,
+				$4,
+				$5,
+				$6
+			)
+		;`, account.Id, account.FirstName, account.LastName, account.Email, account.Balance, account.RoleId)
+	}
+
+	br := tx.SendBatch(ctx, batch)
+	// https://github.com/jackc/pgx/blob/master/batch_test.go
+	// exec means getting result from next query
+	for i := 0; i < len(accounts); i++ {
+		_, err := br.Exec()
+		if err != nil {
+			return err
+		}
+		// fmt.Println("rows affected:", result.RowsAffected())
+	}
+	if err := br.Close(); err != nil {
+		return err
+	}
+	if err := tx.Commit(ctx); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// https://pkg.go.dev/github.com/jackc/pgx/v5#hdr-Copy_Protocol
+func (r *accountRepo) CreateAccountWithCopyFrom(ctx context.Context, accounts []CreateAccount) error {
+	tx, err := r.db.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.Serializable})
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = tx.Rollback(ctx)
+	}()
+
+	_, err = tx.CopyFrom(
+		ctx,
+		pgx.Identifier{"public", "accounts"},
+		[]string{"id", "first_name", "last_name", "email", "balance", "role_id"},
+		pgx.CopyFromSlice(len(accounts), func(i int) ([]any, error) {
+			return []any{accounts[i].Id, accounts[i].FirstName, accounts[i].LastName, accounts[i].Email, accounts[i].Balance, accounts[i].RoleId}, nil
+		}),
+	)
+	if err != nil {
+		return err
+	}
+	// fmt.Println("rows affected:", copyCount)
+	if err := tx.Commit(ctx); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *accountRepo) UpdateAccount(ctx context.Context, id string, balance float64, roleId int) error {
 	tx, err := r.db.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.Serializable})
 	if err != nil {
