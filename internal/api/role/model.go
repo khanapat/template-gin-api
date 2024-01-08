@@ -21,3 +21,9 @@ func (req *CreateRoleRequest) validate() error {
 	}
 	return nil
 }
+
+type ProgressCsv struct {
+	EmployeeId string `mapstructure:"emp_id" json:"emp_id" validate:"required,alphanum"`
+	QuestName  string `mapstructure:"quest_name" json:"quest_name" validate:"required"`
+	ActionDate string `mapstructure:"action_date" json:"action_date" validate:"required"`
+}
