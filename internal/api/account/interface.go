@@ -29,3 +29,7 @@ type registerAccountBulkRepo interface {
 type registerAccountCopyFromRepo interface {
 	CreateAccountWithCopyFrom(ctx context.Context, accounts []CreateAccount) error
 }
+
+type upsertAccountRepo interface {
+	UpsertAccount(ctx context.Context, id string, firstName string, lastName string, email string, balance float64, roleId int) error
+}

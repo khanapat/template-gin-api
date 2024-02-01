@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"template-gin-api/config"
 	"template-gin-api/internal/api/account"
+	"template-gin-api/internal/api/employee"
 	"template-gin-api/internal/api/role"
 	"template-gin-api/internal/database"
 	"template-gin-api/internal/handler"
@@ -71,6 +72,7 @@ func main() {
 	router := gin.New()
 
 	accountRepo := account.NewAccountRepo(postgresDB)
+	employeeRepo := employee.NewEmployeeRepo(postgresDB)
 	roleRepo := role.NewRoleRepo(postgresDB)
 
 	api := router.Group(cfg.App.Context)
@@ -82,9 +84,12 @@ func main() {
 	api.GET("/accounts/:id", handler.New(account.NewInquiryAccountById(accountRepo).Handler, logger))
 	api.PATCH("/accounts", handler.New(account.NewUpdateAccount(accountRepo).Handler, logger))
 
+	api.POST("/accountsus", handler.New(account.NewUpsertAccount(accountRepo).Handler, logger))
 	api.POST("/accountps", handler.New(account.NewRegisterAccountPrepare(accountRepo).Handler, logger))
 	api.POST("/accountb", handler.New(account.NewRegisterAccountBulk(accountRepo).Handler, logger))
 	api.POST("/accountcpf", handler.New(account.NewRegisterAccountCopyFrom(accountRepo).Handler, logger))
+
+	api.POST("/employee", handler.New(employee.NewUpsertEmployee(employeeRepo).Handler, logger))
 
 	api.POST("/roles", handler.New(role.NewRegisterRole(roleRepo).Handler, logger))
 	api.POST("/csv", handler.New(role.NewUploadCSV().Handler, logger))

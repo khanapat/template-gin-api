@@ -303,3 +303,53 @@ func (r *accountRepo) UpdateAccount(ctx context.Context, id string, balance floa
 
 	return nil
 }
+
+func (r *accountRepo) UpsertAccount(ctx context.Context, id string, firstName string, lastName string, email string, balance float64, roleId int) error {
+	tx, err := r.db.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.Serializable})
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = tx.Rollback(ctx)
+	}()
+
+	result, err := tx.Exec(ctx, `
+		INSERT INTO public.accounts
+		(
+			id,
+			first_name,
+			last_name,
+			email,
+			balance,
+			role_id
+		)
+		VALUES
+		(
+			$1,
+			$2,
+			$3,
+			$4,
+			$5,
+			$6
+		)
+		ON CONFLICT (id)
+		DO UPDATE SET
+			first_name = EXCLUDED.first_name,
+			last_name = EXCLUDED.last_name,
+			email = EXCLUDED.email,
+			balance = EXCLUDED.balance,
+			role_id = EXCLUDED.role_id,
+			updated_date_time = CURRENT_TIMESTAMP
+	;`, id, firstName, lastName, email, balance, roleId)
+	if err != nil {
+		return err
+	}
+	if result.RowsAffected() == 0 {
+		return pgx.ErrNoRows
+	}
+	if err := tx.Commit(ctx); err != nil {
+		return err
+	}
+
+	return nil
+}
