@@ -89,7 +89,10 @@ func main() {
 	api.POST("/accountb", handler.New(account.NewRegisterAccountBulk(accountRepo).Handler, logger))
 	api.POST("/accountcpf", handler.New(account.NewRegisterAccountCopyFrom(accountRepo).Handler, logger))
 
-	api.POST("/employee", handler.New(employee.NewUpsertEmployee(employeeRepo).Handler, logger))
+	api.GET("/employees/:id", handler.New(employee.NewInquiryEmployeeById(employeeRepo).Handler, logger))
+	api.GET("/employees/products/:product", handler.New(employee.NewInquiryQuantityByProduct(employeeRepo).Handler, logger))
+	api.POST("/employees", handler.New(employee.NewUpsertEmployee(employeeRepo).Handler, logger))
+	api.PATCH("/employees/products", handler.New(employee.NewUpdateQuantityProduct(employeeRepo).Handler, logger))
 
 	api.POST("/roles", handler.New(role.NewRegisterRole(roleRepo).Handler, logger))
 	api.POST("/csv", handler.New(role.NewUploadCSV().Handler, logger))

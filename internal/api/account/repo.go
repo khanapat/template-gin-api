@@ -18,6 +18,7 @@ func NewAccountRepo(db *pgxpool.Pool) *accountRepo {
 	}
 }
 
+// https://stackoverflow.com/questions/52327710/build-dynamic-conditional-where-sql-query-in-golang
 func (r *accountRepo) InquiryAccount(ctx context.Context, request map[string]interface{}) (*[]Account, error) {
 	accounts := make([]Account, 0)
 	param := make([]interface{}, 0)
@@ -289,7 +290,7 @@ func (r *accountRepo) UpdateAccount(ctx context.Context, id string, balance floa
 		SET balance = $1,
 			role_id = $2,
 			updated_date_time = CURRENT_TIMESTAMP
-		WHERE id = $3
+		WHERE	id = $3
 	;`, balance, roleId, id)
 	if err != nil {
 		return err

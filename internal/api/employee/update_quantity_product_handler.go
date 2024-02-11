@@ -7,18 +7,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type upsertEmployee struct {
-	repo upsertEmployeeRepo
+type updateQuantityProduct struct {
+	repo editEmployeeQuantityByProductNameRepo
 }
 
-func NewUpsertEmployee(repo upsertEmployeeRepo) *upsertEmployee {
-	return &upsertEmployee{
+func NewUpdateQuantityProduct(repo editEmployeeQuantityByProductNameRepo) *updateQuantityProduct {
+	return &updateQuantityProduct{
 		repo: repo,
 	}
 }
 
-func (s *upsertEmployee) Handler(c *handler.Ctx) {
-	var req UpsertEmployeeRequest
+func (s *updateQuantityProduct) Handler(c *handler.Ctx) {
+	var req UpdateQuantityProductRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -33,13 +33,12 @@ func (s *upsertEmployee) Handler(c *handler.Ctx) {
 		return
 	}
 
-	// https://www.postgresqltutorial.com/postgresql-tutorial/postgresql-upsert/
-	if err := s.repo.UpsertEmployee(c.Request.Context(), req.Id, req.Username, req.Email); err != nil {
+	if err := s.repo.UpdateEmployeeQuantityByProduct(c.Request.Context(), req.Product, req.Quantity); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, nil)
+	c.Status(http.StatusOK)
 }

@@ -28,3 +28,37 @@ func (req *UpsertEmployeeRequest) validate() error {
 type UpsertEmployeeResponse struct {
 	Id int `json:"id" example:"1"`
 }
+
+type InquiryEmployeeResponse struct {
+	Username  string   `json:"username" example:"username"`
+	Email     string   `json:"email" example:"email@email.com"`
+	Metadata  Metadata `json:"metadata"`
+	Job       []string `json:"job" example:"[]"`
+	CreatedAt int64    `json:"createdAt" example:"1707649444"`
+	UpdatedAt int64    `json:"updatedAt" example:"1707649444"`
+}
+
+type Metadata struct {
+	Customer string `json:"customer" example:"John Doe"`
+	Items    Item   `json:"items"`
+}
+
+type Item struct {
+	Product  string `json:"product" example:"Beer"`
+	Quantity int    `json:"qty" example:"5"`
+}
+
+type UpdateQuantityProductRequest struct {
+	Product  string `json:"product" example:"Beer"`
+	Quantity int    `json:"qty" example:"5"`
+}
+
+func (req *UpdateQuantityProductRequest) validate() error {
+	if utf8.RuneCountInString(req.Product) == 0 {
+		return errors.New("'product' must be REQUIRED field")
+	}
+	if req.Quantity == 0 {
+		return errors.New("'qty' must be REQUIRED field")
+	}
+	return nil
+}
