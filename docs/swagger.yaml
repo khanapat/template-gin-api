@@ -1,0 +1,47 @@
+basePath: /
+consumes:
+    - application/json
+host: localhost:9090
+info:
+    description: Documentation of our MyApplication API.
+    title: MyApplication.
+    version: 1.0.0
+paths:
+    /employees/:id:
+        get:
+            operationId: inquiryEmployeeById
+            responses:
+                "200":
+                    $ref: "#/responses/inquiryEmployeeResponse"
+            tags:
+                - employee
+produces:
+    - application/json
+responses:
+    inquiryEmployeeResponse:
+        description: ""
+        headers:
+            createdAt:
+                format: int64
+                type: integer
+            email:
+                type: string
+            job:
+                items:
+                    type: string
+                type: array
+            metadata: {}
+            updatedAt:
+                format: int64
+                type: integer
+schemes:
+    - http
+security:
+    - key:
+          - "[]"
+securityDefinitions:
+    key:
+        in: header
+        name: Authorization
+        type: apiKey
+swagger: "2.0"

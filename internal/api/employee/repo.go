@@ -82,7 +82,7 @@ func (r *employeeRepo) UpdateEmployeeQuantityByProduct(ctx context.Context, prod
 		UPDATE public.employee
 		SET	metadata['items']['qty'] = TO_JSONB($1::INT)
 		WHERE	metadata['items']['product'] = TO_JSONB($2::TEXT)
-	;`, quantity, product)
+	;`, quantity, product) // where case jsonb = jsonb (can't use ILIKE because of jsonb comparison)
 	if err != nil {
 		return err
 	}

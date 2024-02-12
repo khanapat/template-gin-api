@@ -29,7 +29,9 @@ type UpsertEmployeeResponse struct {
 	Id int `json:"id" example:"1"`
 }
 
+// swagger:response inquiryEmployeeResponse
 type InquiryEmployeeResponse struct {
+	// in:body
 	Username  string   `json:"username" example:"username"`
 	Email     string   `json:"email" example:"email@email.com"`
 	Metadata  Metadata `json:"metadata"`
