@@ -9,10 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// swagger:route GET /employees/:id employee inquiryEmployeeById
-// responses:
-//
-// 200: inquiryEmployeeResponse
 type inquiryEmployeeById struct {
 	repo getEmployeeByIdRepo
 }

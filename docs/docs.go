@@ -2,8 +2,8 @@
 //
 // Documentation of our MyApplication API.
 //
-//	Schemes: http
-//	BasePath: /
+//	Schemes: http, https
+//	BasePath: /api
 //	Version: 1.0.0
 //	Host: localhost:9090
 //
@@ -26,3 +26,5 @@
 package docs
 
 // https://dev.to/pallat/goswagger-ebuuengtn-4gb1
+// installing-from-source swagger
+// https://goswagger.io/install.html#installing-from-source

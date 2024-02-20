@@ -18,6 +18,10 @@ image:
 docker:
 	docker run -it --name $(PROJECT) -p $(PORT):$(PORT) --rm --env-file .env -d $(PROJECT):$(VERSION)
 
+swagger:
+	swagger generate spec -o ./docs/swagger.yaml --scan-models
+	swagger serve -F=swagger ./docs/swagger.yaml
+
 create-postgres:
 	docker-compose -f ./build/postgres/docker-compose.yaml up -d
 

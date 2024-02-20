@@ -1,44 +1,199 @@
-basePath: /
+basePath: /api
 consumes:
     - application/json
+definitions:
+    ErrResponse:
+        properties:
+            code:
+                format: uint64
+                type: integer
+                x-go-name: Code
+            error:
+                type: string
+                x-go-name: Error
+            message:
+                type: string
+                x-go-name: Message
+        type: object
+        x-go-package: template-gin-api/internal/response
+    InquiryEmployeeResponse:
+        properties:
+            createdAt:
+                format: int64
+                type: integer
+                x-go-name: CreatedAt
+            email:
+                type: string
+                x-go-name: Email
+            job:
+                items:
+                    type: string
+                type: array
+                x-go-name: Job
+            metadata:
+                $ref: '#/definitions/Metadata'
+            updatedAt:
+                format: int64
+                type: integer
+                x-go-name: UpdatedAt
+            username:
+                type: string
+                x-go-name: Username
+        type: object
+        x-go-package: template-gin-api/internal/api/employee
+    Item:
+        properties:
+            product:
+                type: string
+                x-go-name: Product
+            qty:
+                format: int64
+                type: integer
+                x-go-name: Quantity
+        type: object
+        x-go-package: template-gin-api/internal/api/employee
+    Metadata:
+        properties:
+            customer:
+                type: string
+                x-go-name: Customer
+            items:
+                $ref: '#/definitions/Item'
+        type: object
+        x-go-package: template-gin-api/internal/api/employee
+    UpdateQuantityProductRequest:
+        properties:
+            product:
+                type: string
+                x-go-name: Product
+            qty:
+                format: int64
+                type: integer
+                x-go-name: Quantity
+        type: object
+        x-go-package: template-gin-api/internal/api/employee
 host: localhost:9090
 info:
     description: Documentation of our MyApplication API.
     title: MyApplication.
     version: 1.0.0
 paths:
-    /employees/:id:
-        get:
-            operationId: inquiryEmployeeById
+    /employees:
+        post:
+            description: Insert & Update Employee
+            operationId: upsertEmployeeRequest
+            parameters:
+                - in: body
+                  name: Body
+                  schema:
+                    properties:
+                        email:
+                            example: email@email.com
+                            type: string
+                            x-go-name: Email
+                        id:
+                            example: 1
+                            format: int64
+                            type: integer
+                            x-go-name: Id
+                        username:
+                            example: username
+                            type: string
+                            x-go-name: Username
+                    type: object
             responses:
                 "200":
-                    $ref: "#/responses/inquiryEmployeeResponse"
+                    $ref: '#/responses/upsertEmployeeResponse'
+                "400":
+                    $ref: '#/responses/upsertEmployeeErrResponse'
+            tags:
+                - employee
+    /employees/{id}:
+        get:
+            description: Get Employee by id
+            operationId: inquiryEmployeeByIdRequest
+            parameters:
+                - description: Id of a Employee
+                  example: 1
+                  format: int64
+                  in: path
+                  name: id
+                  required: true
+                  type: integer
+                  x-go-name: Id
+            responses:
+                "200":
+                    $ref: '#/responses/inquiryEmployeeByIdResponse'
+            tags:
+                - employee
+    /employees/products:
+        patch:
+            description: Edit Employee Product
+            operationId: updateQuantityProductRequest
+            parameters:
+                - in: body
+                  name: Body
+                  schema:
+                    $ref: '#/definitions/UpdateQuantityProductRequest'
+            responses:
+                "200":
+                    $ref: '#/responses/updateQuantityProductResponse'
+                "400":
+                    $ref: '#/responses/updateQuantityProductErrResponse'
+                "500":
+                    $ref: '#/responses/updateQuantityProductErrResponse'
             tags:
                 - employee
 produces:
     - application/json
 responses:
-    inquiryEmployeeResponse:
+    inquiryEmployeeByIdResponse:
         description: ""
-        headers:
-            createdAt:
-                format: int64
-                type: integer
-            email:
-                type: string
-            job:
-                items:
+        schema:
+            properties:
+                code:
+                    example: 200
+                    format: uint64
+                    type: integer
+                    x-go-name: Code
+                data:
+                    $ref: '#/definitions/InquiryEmployeeResponse'
+                message:
+                    example: Success.
                     type: string
-                type: array
-            metadata: {}
-            updatedAt:
-                format: int64
-                type: integer
+                    x-go-name: Message
+            type: object
+    updateQuantityProductErrResponse:
+        description: ""
+        schema:
+            $ref: '#/definitions/ErrResponse'
+    updateQuantityProductResponse:
+        description: ""
+    upsertEmployeeErrResponse:
+        description: ""
+        schema:
+            properties:
+                code:
+                    example: 400
+                    format: uint64
+                    type: integer
+                    x-go-name: Code
+                error:
+                    type: string
+                    x-go-name: Error
+                message:
+                    example: Invalid request.
+                    type: string
+                    x-go-name: Message
+            type: object
+    upsertEmployeeResponse:
+        description: ""
 schemes:
     - http
+    - https
 security:
     - key:
-          - "[]"
+        - '[]'
 securityDefinitions:
     key:
         in: header
