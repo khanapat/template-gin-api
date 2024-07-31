@@ -2,6 +2,7 @@ package role
 
 import (
 	"context"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -48,4 +49,24 @@ func (r *roleRepo) CreateRole(ctx context.Context, title string, desc string) (i
 	}
 
 	return id, nil
+}
+
+func (r *roleRepo) GetUnixCurrentTimestamp(ctx context.Context) (int64, error) {
+	var ts int64
+
+	if err := r.db.QueryRow(ctx, `SELECT extract(epoch from now())::int;`).Scan(&ts); err != nil {
+		return 0, err
+	}
+
+	return ts, nil
+}
+
+func (r *roleRepo) GetCurrentTimestamp(ctx context.Context) (time.Time, error) {
+	var ts time.Time
+
+	if err := r.db.QueryRow(ctx, `SELECT current_timestamp;`).Scan(&ts); err != nil {
+		return time.Time{}, err
+	}
+
+	return ts, nil
 }

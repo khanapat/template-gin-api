@@ -96,6 +96,7 @@ func main() {
 
 	api.POST("/roles", handler.New(role.NewRegisterRole(roleRepo).Handler, logger))
 	api.POST("/csv", handler.New(role.NewUploadCSV().Handler, logger))
+	api.GET("/playground", handler.New(role.NewPlayground(roleRepo).Handler, logger))
 
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%s", cfg.App.Port),
